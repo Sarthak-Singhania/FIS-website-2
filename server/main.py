@@ -30,7 +30,8 @@ def login():
         ipban.add()
         return make_response({'message':'Login failed'})
     else:
-        cursor.execute(f"select exists(select users.User_Name from users,password where password.Password={x['password']}) as login")
+        com="select exists(select users.User_Name from users,password where password.Password=%s) as login"
+        cursor.execute(com,(x['password']))
         # a=f"select exists(select from users, password where users.User_Name={x['user_name']} and password.Password={x['password']})"
         # print(a)
         a=cursor.fetchone()['login']
