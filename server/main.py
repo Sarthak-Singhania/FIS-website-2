@@ -1,12 +1,14 @@
 from flask import Flask, request, make_response
 from flask_mysqldb import MySQL
 from flask_cors import CORS, cross_origin
+from flask_ipban import IpBan
 import MySQLdb.cursors as cur
 
 app=Flask(__name__)
 
 cors=CORS(app)
 mysql=MySQL(app)
+ipban=IpBan(app=app,ban_count=5)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['MYSQL_HOST'] = 'localhost'
@@ -24,24 +26,38 @@ def welcome():
 def login():
     x=request.get_json()
     cursor = mysql.connection.cursor(cur.DictCursor)
-    print(x)
-    cursor.execute(f"select exists(select users.User_Name from users,password where password.Password={x['password']}) as login")
-    # a=f"select exists(select from users, password where users.User_Name={x['user_name']} and password.Password={x['password']})"
-    # print(a)
-    a=cursor.fetchone()
-    print(a)
-    return make_response({'message':a})
+    if ' ' in x['password']:
+        ipban.add()
+        return make_response({'message':'Login failed'})
+    else:
+        cursor.execute(f"select exists(select users.User_Name from users,password where password.Password={x['password']}) as login")
+        # a=f"select exists(select from users, password where users.User_Name={x['user_name']} and password.Password={x['password']})"
+        # print(a)
+        a=cursor.fetchone()['login']
+        if a:
+            return make_response({'message':'Login successfull'})
+        else:
+            return make_response({'message':'Login failed'})
 
 @app.post('/register')
 @cross_origin()
 def register():
     x=request.get_json()
     cursor=mysql.connection.cursor(cur.DictCursor)
-    cursor.execute(f"insert into users (User_Name,Email) values ({x['user_name']},{x['email']})")
+    if ' ' in x['password']:
+        ipban.add()
+        return make_response({'message':'Registration failed, password can not contain space'})
+    com="insert into users (User_Name,Email) values (%s,%s)"
+    value=(x['user_name'],x['email'])
+    cursor.execute(com,value)
     mysql.connection.commit()
-    cursor.execute(f"insert into password (User_Name,Password) values ({x['user_name']},{x['password']})")
+    com="insert into password (User_Name,Password) values (%s,%s)"
+    value=(x['user_name'],x['password'])
+    cursor.execute(com,value)
     mysql.connection.commit()
-    cursor.execute(f"insert into level (User_Name,Level) values ({x['user_name']},'basic')")
+    com="insert into level (User_Name,Level) values (%s,%s)"
+    value=(x['user_name'],'basic')
+    cursor.execute(com,value)
     mysql.connection.commit()
     try:
         a=cursor.fetchone()

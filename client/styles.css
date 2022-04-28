@@ -7,21 +7,16 @@
 .hero{
     height: 100%;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-image: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)),url(banner.jpg);
     background-position: center;
     background-size: cover;
     position: absolute;
 }
 
-.form-box{
-    width: 380px;
-    height: 480px;
-    position: relative;
-    margin: 6% auto;
-    background: #fff;
-    padding: 5px;
-    overflow: hidden;
-}
+
 
 .button-box{
     width: 220px;
@@ -50,11 +45,47 @@
    border-radius:30px;
    transition: .5s;
 }
-
+.form-box{
+    width: 380px;
+    height: 480px;
+    position: absolute;
+    margin: 6% auto;
+    background: #fff;
+    padding: 5px;
+    overflow: hidden;
+}
+#alert-box{
+    height: 100px;
+    width: 390px;
+    margin: 2% auto;
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0px;
+    border-radius: 10px;
+    visibility:hidden;
+    overflow:hidden;
+    padding: 5px;
+    background:  linear-gradient(to right,#ff105f,#ffad06);
+}
+#close-button{
+    font-size: 15px;
+    right: 10px;
+    top: 8px;
+    cursor: pointer;
+    align-self: flex-start;
+}
+#alert-box-text{
+    padding: 5px;
+    text-align: center;
+}
 .social-icons{
     margin: 30px auto;
     text-align:center;
 }
+
 
 .social-icons img{
     width: 30px;
